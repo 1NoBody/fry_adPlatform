@@ -21,7 +21,7 @@ class Other extends BaseController{
             $logo_path = 'uploadimg/'.$file_name;
             $num = file_put_contents($logo_path, base64_decode($match_result[2]));
             if (!empty($num)) {
-                $imgUrl = 'http://'.$_SERVER['HTTP_HOST'].'/publiuc'.'/'.$logo_path;
+                $imgUrl = 'http://'.$_SERVER['HTTP_HOST'].'/'.$logo_path;
                 return json(['code'=>20000,'msg'=>'图片上传成功','data'=>['img_url'=>$imgUrl]]);
             } else {
                 return json(['code'=>50000,'msg'=>'图片上传失败']);

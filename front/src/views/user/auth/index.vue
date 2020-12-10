@@ -1,7 +1,12 @@
 <template>
+ <div
+    class="app-container calendar-list-container product"
+    v-loading.fullscreen="loading"
+    element-loading-text="拼命加载中..."
+  >
 <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
   <div class="tip">
-    <p v-model="text">
+    <p >
       <span v-if="ruleForm.audit==0">您的账户资料信息尚未完善，请先完善账户信息。</span>
       <span v-if="ruleForm.audit==1">您已提交实名认证信息，管理员正在审核中，请耐心等待。</span>
       <span v-if="ruleForm.audit==2">实名认证未通过：{{text}}</span>
@@ -29,7 +34,7 @@
   <el-form-item label="上传营业执照" prop="picture">
     <el-upload
           class="avatar-uploader"
-          action="http://www.frypt.com/other/uploadimg"
+          action="other/uploadimg"
           :show-file-list="false" 
           :before-upload="beforeAvatarUpload"
           :http-request="upload"
@@ -44,6 +49,7 @@
         <!-- <el-button id="btn2" @click="resetForm('ruleForm')">重置</el-button> -->
   </el-form-item>
 </el-form>
+ </div>
 </template>
 
 <script>
@@ -53,6 +59,7 @@ import { post, get } from "@/api/api.js";
   export default {
     data() {
       return {
+        loading: false,
         imageUrl: '',
         text: '',
         ruleForm: {
@@ -91,10 +98,31 @@ import { post, get } from "@/api/api.js";
       };
     },
     methods: {
+      init(){
+         post("company/findByUserId", { id: this.$route.params.id > 0 ? this.$route.params.id : store.getters.user_id }).then((res) => {
+          this.ruleForm.company = res.data.company;
+          this.ruleForm.lxrname = res.data.name;
+          this.ruleForm.lxrphone = res.data.telephone;
+          this.ruleForm.lxremail = res.data.email;
+          this.ruleForm.wechat = res.data.vx;
+          this.ruleForm.number = res.data.license;
+          this.ruleForm.img_url = res.data.license_img;
+          this.ruleForm.user_id = res.data.user_id;
+          this.ruleForm.audit = res.data.audit;
+          // 显示图片
+          this.imageUrl = res.data.license_img;
+          // 提示语
+          this.text = res.data.reason;
+          this.loading = false;
+          })
+        .catch((e) => {
+          this.loading = false;
+        });
+      },
       submitForm(formName) {
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            var {company,lxrname,lxrphone,lxremail,wechat,number,img_url} = this.ruleForm;
+            var {company,lxrname,lxrphone,lxremail,wechat,number,img_url,user_id} = this.ruleForm;
             var req = {
                 company: company,
                 name: lxrname,
@@ -102,10 +130,25 @@ import { post, get } from "@/api/api.js";
                 vx: wechat,
                 email: lxremail,
                 license:  number,
-                license_img: img_url
+                license_img: img_url,
+                user_id: user_id
             }
             post("company/auth", req).then((res) => {
 
+            if (res.code === 20000) {
+            this.$message({
+              message: "提交成功",
+              type: "success",
+            });
+            this.loading=true;
+              this.init(); 
+          } else {
+            this.$message({
+              message: "提交失败",
+              type: "error;",
+            });
+          }
+              
           })
         .catch((e) => {});
           } else {
@@ -152,28 +195,15 @@ import { post, get } from "@/api/api.js";
       }
     },
     mounted() {
-        get("company/findByUserId", { id: this.$route.params.id > 0 ? this.$route.params.id : store.getters.user_id }).then((res) => {
-          this.ruleForm.company = res.data.company;
-          this.ruleForm.lxrname = res.data.name;
-          this.ruleForm.lxrphone = res.data.telephone;
-          this.ruleForm.lxremail = res.data.email;
-          this.ruleForm.wechat = res.data.vx;
-          this.ruleForm.number = res.data.license;
-          this.ruleForm.img_url = res.data.license_img;
-          this.ruleForm.audit = res.data.audit;
-          // 显示图片
-          this.imageUrl = res.data.license_img;
-          // 提示语
-          this.text = res.data.reason;
-          })
-        .catch((e) => {});
+      this.loading = true;
+      this.init();
   }
 }
 </script>
 
 <style scoped>
   .avatar-uploader .el-upload {
-    border: 1px dashed #d9d9d9;
+    border: 1px dashed #8b7878;
     border-radius: 6px;
     cursor: pointer;
     position: relative;

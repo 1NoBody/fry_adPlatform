@@ -39,7 +39,7 @@ class User extends BaseController
         $userId= Session::get("user_id");
         //$userId = 1;
         if(empty($userId)){
-            return json(['code'=>50000,'message'=>'账户失效，请重新登录']);
+            return json(['code'=>50000,'msg'=>'账户失效，请重新登录']);
         }else{
             $user=MUser::where("id",$userId)->field(['id','username','role'])->find();
             $menus=$this->getMenus($user);
@@ -63,7 +63,8 @@ class User extends BaseController
     {
         $username = Request::param('username');
         $password = Request::param('password');
-        $data = ['username'=>$username,'password'=>$password];
+        $nickname = "普通用户";
+        $data = ['username'=>$username,'password'=>$password,'nickname'=>$nickname];
         try {
             if (Db::table('ad_user')->where('username', $username)->limit(1)->find()) {
                 return json(['code'=>50000,'msg'=>"该用户已存在"]);

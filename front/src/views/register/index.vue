@@ -72,7 +72,7 @@ import { post, get } from "@/api/api.js";
       };
       return {
         centerDialogVisible: true,
-        imgUrl:'http://192.168.168.18:13000/user/verify?time=' + Date.now(),
+        imgUrl:'http://192.168.168.21:13000/user/verify?time=' + Date.now(),
         isDisabled: false, // 验证成功后禁用输入框
         ruleForm: {
           account:'',
@@ -123,7 +123,7 @@ import { post, get } from "@/api/api.js";
         .catch((e) => {});
       },
       flush() {
-        this.imgUrl = 'http://www.frypt.com/user/verify?time=' + Date.now();
+        this.imgUrl = 'http://192.168.168.21:13000/user/verify?time=' + Date.now();
         this.isDisabled = false;
       }
     },
